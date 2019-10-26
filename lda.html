@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="candy.css">
+    <link rel="icon" href="icon/favicon.ico">
+    <title>LDA: a brief introduction</title>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type="text/javascript">
+        function showAns(qid) {
+            let x = document.getElementById(qid);  // .style.display = "block";
+            console.log(x.style.display)
+            if (x.style.display != "inline") {
+                x.style.display = "inline";
+                console.log("show answer");
+            }
+        }
+    </script>
+    <style>
+    #a1 {
+        color: rgb(51, 128, 41);
+        display: none;
+    }
+    #a2 {
+        color: rgb(51, 128, 41);
+        display: none;
+    }
+    #a3 {
+        color: rgb(51, 128, 41);
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<h1>Linear Discriminant Analysis: <br>
+    a brief introduction</h1>
+<div style="color:rgb(41, 87, 139);" align="center">
+    <a href="https://github.com/YunyyYY">Lingyun Guo </a>
+</div>
+<!-- <a href="https://github.com/YunyyYY">Lingyun Guo </a> -->
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+    <h2>0. Preparation</h2>
+        <p>
+            <strong>Overview</strong><br>
+            <br>
+            <a href="https://en.wikipedia.org/wiki/Linear_discriminant_analysis">
+            Linear discreminant analysis</a> (LDA) is a supervised algorithm
+            widely used method in classification and dimension reduction. In this 
+            article, we will walk through the main idea of LDA, get to know how it 
+            works and find out some of its properties and regularities. <br>
+            <br>
+            <strong>Prerequisites</strong><br>
+            <br>
+            To fully grasp the idea of this explanatory article, you should have 
+            a basic understanding in linear algebra, calculas and probability 
+            theory. <br>
+            <br>
+            <!-- <br>
+            <strong>Objectives</strong><br>
+            <br>
+            After reading this article, you would be able to:
+            <ul>
+                <li>escribe and explain the principal mechanism of implementing 
+                    LDA.</li>
+                <li>Given prior knowledge of the dataset, determine if LDA would 
+                    be a suitable analysis tool.</li>
+                <li>Given a two dimensional visualization of two classes for LDA,  
+                    sketch the discriminant function</li>
+            </ul> -->
+        </p>
+    </div>
+
+<!-- 248, 246, 242 -->
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+    <h2>1. Projection</h2>
+    <p> 
+        <img src="svg/proj.png" width=30% align="right">
+        An important idea in LDA is projection. The projection of a vector $x$ 
+        onto another vector $\omega$ is defined as 
+        $$ proj_{\omega}x = 
+        \left(\frac{\omega^{T} x}{\omega^{T} \omega}\right) \omega $$
+        In a two dimensional space, this can be viewed as the component 
+        of one vector explained in the direction of the other, and the 
+        actual amount of this portion, a scalar value $a$ in this direction, 
+        is determined by 
+        $$a = \frac{\omega^{T} x}{\omega^{T} \omega}$$
+        <br>
+        For example, in the graph on the right, 
+        vector $\nu$ is projected onto vector $\omega$, which is represented by 
+        the solid line paralle to $\omega$. The value of projection is relevent to 
+        both the length of vector $\nu$ as well as the angle between the two vectors.
+        In the figure below, you can scroll to see the projection of a point onto
+        different lines.
+        <div align="center">    
+        <embed src="html/projection.html" width="400" height="480"></embed><br>
+        </div>
+    </p>
+</div>
+
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+        <h2>2. Two important metrices in LDA</h2>
+        <p> <img src="svg/mean.svg" width=300px align="right">
+            LDA cares about two distances: within-class distance and between-class 
+            distance. In this section, we only discuss the condition of a two 
+            dimensional LDA problem on two classes. <br>
+            <br>
+            <strong>Maximize between-class distance</strong><br>
+            <br>
+            The goal of LDA is to find a line that best distinguish the two 
+            different classes when the data are projected onto this line. 
+            To measure the distinction between the two classes, we first find the 
+            projection of the mean value for each class. Suppose the two classes 
+            are labelled by $y = 0$ or $y = 1$, and each $x_i$ represents a 2-D 
+            vector. For each class, the mean is 
+            defined as 
+            $$ \mu_i = \frac{\sum_{k=0}^{n_i}x_k}{n_i}\text{, } i = 0\text{ or }1$$
+            and the projected value of the mean point onto a line represents by a unit 
+            vector $w$ ($|w| = 1$) is 
+            $$ m_i = \frac{\omega^{T} \mu_i}{\omega^{T} \omega} = \omega^{T} \mu_i$$
+            The distance of the two classes under this projection is determined by
+            $$ |m_1 - m_2|$$
+            and in order to distinguish the two classes, we want to maximize this 
+            value.<br>
+            <br>
+            <strong>Minimize within-class distance</strong><br>
+            <br>
+            In the meantime, we also want to minimize the distances within a class \(C_i\), 
+            so that points of two different classes don't overlap. This is measured 
+            by within-class variance:
+            $$
+            s_{i}^{2}=\sum_{x_{k} \in C_{i}}\left(a_{k}-m_{i}\right)^{2}
+            \text{, } i = 0\text{ or }1
+            $$
+            Notice that here $a_k$'s  and $m_i$ are all <i>projections</i> of points 
+            onto a line $l$ represented by a direction vector $w$. The intercept of 
+            the line is not considered, because it's irrelevant to the two distances 
+            discussed above.<br>
+            <br>
+        </p>
+</div>
+
+
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+        <h2>3. Fisher's LDA</h2>
+        <p> 
+            Our goal is to maximize $|m_1 - m_2|$ as well as minimize 
+            $s_1^2+s_2^2$. We can combine them into one optimization problem as 
+            $$
+            \max _{w} J(w)=\frac{\left(m_{1}-m_{2}\right)^{2}}{s_{1}^2+s_{2}^2}
+            $$
+            this is known as <strong>Fisher's LDA</strong>. Since 
+            \(m_i = w^T\mu_i\), 
+            $$(m_1 - m_2)^2 = (w^T(\mu_1-\mu_2))^2 = w^T(\mu_1-\mu_2)(\mu_1-\mu_2)^Tw
+            $$ denote $B = (\mu_1-\mu_2)(\mu_1-\mu_2)^T$, $B$ is a $2\times 2$ matrix 
+            known as the between class scatter matrix.<br>
+            Similarly, 
+            $$
+            s_{i}^2 = \sum_{x_{k} \in C_{i}}\left(a_{k}-m_{i}\right)^{2} 
+                    = \sum_{x_{k} \in C_{i}} (w^Tx_k - w^T\mu_i)^2
+                    = w^T\left(\sum_{x_{k} \in C_{i}}(x_k - \mu_i)(x_k - \mu_i)^T\right)w
+            $$
+            Let $$S_i = \sum_{x_{k} \in C_{i}}(x_k - \mu_i)(x_k - \mu_i)^T$$ and denote the 
+            sum of within-class scatter matrix as
+            $$S = s_1^2 + s_2^2 = S_1 + S_2$$
+            we can rewrite our optimization function as
+            $$ \max _{w} J(w)=\frac{w^TBw}{w^TSw}.
+            $$
+        </p>
+</div>
+
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+        <h2>4. Optimize the objective function</h2>
+        <p> Recall that in calculus, the maximum value of a convex function is attained when its 
+            derivative equals zero. Qualitatively, we know that the numerator and denominator 
+            are both convex, and as the numerator increases, the denominator decreases. Therefore a 
+            maximum exists for our objective function. <br><br>
+            You can also scroll the slider below this graph to figure out how within-class variance 
+            and between-class variance changes as the direction $w$ of the projected line changes.
+            <embed src="html/slope.html" width="900" height="500">
+            Recall the derivative of \(f(x)/g(x)\) is 
+            $$ \frac{d}{dx} \left(\frac{f(x)}{g(x)}\right) = 
+            \frac{f^{\prime}(x) g(x)-g(x)^{\prime}f(x)}{g(x)^{2}}
+            $$
+            Thus, for $J(w)$, its derivative
+            $$\frac{d}{d w} J(w)=
+            \frac{(2 B w)\left(w^{T} S w\right)-(2 S w)\left(w^{T} B w\right)}{\left(w^{T} S w\right)^{2}}
+            $$ and if setting to zero, the numerator becomes
+            $$\begin{aligned} 
+            B w\left(w^{T} S w\right) &=S w\left(w^{T} B w\right) \\ 
+            B w &=S w\left(\frac{w^{T} B w}{w^{T} S w}\right) \\ 
+            B w &=J(w) S w \\ 
+            \end{aligned}
+            $$
+            Since $J(w)$ is a scalar, we can write it as
+            $$\begin{aligned} 
+            B w &=\lambda S w \\ 
+            S^{-1} B w &=\lambda S^{-1} S w \\
+            \left(S^{-1} B\right) w &=\lambda w
+            \end{aligned}
+            $$
+            which is equivalent to solving the eigenvalues of matrix $S^{-1} B$. Since $S$ is the summation
+            of within-class variances for the two sampled distributions, it is extremely unlikely for $S$ to
+            be singular if more than one point exists in the distribution. Therefore, our optimzation 
+            problem is safely transformed to solving this matrix calculation, which can be resolved with
+            basic linear algebra knowledge.<br>
+            <br>
+        </p>
+</div>
+
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+        <h2>5. Effect of data distribution property on LDA</h2>
+        <p> 
+            LDA works when the measurements made on independent variables for each 
+            observation are continuous quantities. It is quite sensitive to outliers 
+            and the size of the smallest group must be larger than the number of predictor 
+            variables. It works best if the data are randomly sampled from independent 
+            variables, and the classes follow multinormal distribution. Besides, the 
+            predictive power of LDA decreases as correlation between predicted variables 
+            increases.<br>
+            For example, as shown in the figures below, <br>
+            <img src="svg/cyc_norm_N200.svg" width=300px>
+            <img src="svg/skew_norm_N200.svg" width=300px>
+            <img src="svg/skew3_N200.svg" width=300px>
+            <br>
+            <img src="svg/skew0_N200.svg" width=300px>
+            <img src="svg/skew1_N200.svg" width=300px>
+            <img src="svg/skew2_N200.svg" width=300px>
+            the mean value of class 1 and class 2 (marked by the stars) remained the 
+            same in all 6 graphs, but the covariance matrices are different. The variance 
+            and skewness of the distributions result in the differences in the discriminant 
+            functions.<br>
+            <br>
+        </p>
+</div>
+
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+        <h2>6. Effect of data size on LDA</h2>
+        <p> 
+            For two classes with fixed distributions, as we increase the sample size, the 
+            discriminant function will converge to some fixed value, which is determined by
+            the covariance matrices of the two distributions. <br>
+            You can scroll the slider to see how the swing amplitude of discriminant 
+            line reduces as sample size increases:<br>
+            <embed src="html/size.html" width="900" height="400">
+        </p>
+</div>
+
+<div style="background-color: rgb(255, 255, 255);opacity:0.9;border-radius: 5px;">
+        <h2>7. Exercises</h2>
+        <p> 
+            If you are interseted, you may check the following exercises to see 
+            whether you have understood LDA. <br>
+            <br>
+            <strong>1. The goal of linear discriminant analysis is to</strong>
+            <br>
+            <div class="question" id="q1">
+            <label style="line-height:1.8em;">
+                <input type="radio" name="1" id="a">
+                minimize within-class and between-class distance<br>
+                <input type="radio" name="1" id="b">
+                minimize within-class and maximize between-class distance<br>
+                <input type="radio" name="1" id="c">
+                maximize within-class and between-class distance<br>
+                <input type="radio" name="1" id="d">
+                maximize within-class and minimize between-class distance
+            </label><br>
+            <label class="answer">
+                <input type="button" value="answer" name="1" id="a" onclick="showAns(a1.id)">
+            </label>
+            <label id="a1">B</label>
+            </div>
+        </p>
+        <p>
+            <strong>2. What is the objective function for LDA's optimization?</strong>
+            <br>
+            <div class="question" id="q2">
+            <label style="font-size: 20pt;">
+                <input type="radio" name="2" id="a">
+                $\frac{w^{T} B w}{w^{T} S w}$
+                <input type="radio" name="2" id="b">
+                $\frac{w^{T} B}{w^{T} S}$ 
+                <input type="radio" name="2" id="c">
+                $\frac{w^{T} S w}{w^{T} B w}$
+                <input type="radio" name="2" id="d">
+                $\frac{w^TS}{w^{T} B}$
+            </label> <br><br>
+            <label class="answer">
+                <input type="button" value="answer" name="1" id="a" onclick="showAns(a2.id)">
+            </label>
+            <label id="a2">A</label>
+            </div>
+        </p>
+        <p>
+            <strong>3. Would you consider using LDA for classifying the following data?</strong>
+            <br><img src="svg/classes.png">
+            <div class="question" id="q2">
+            <!--  -->
+            <label class="answer">
+                <input type="button" value="answer" name="1" id="a" onclick="showAns(a3.id)">
+            </label class="answer"><br>
+            <div style="margin: 10px 20px;">
+            <label id="a3">
+                This is an open question...yes and no. For example, 
+                LDA can be applied to classify $c_1$ and $c_5$, but not suitable for 
+                $c_3$ and $c_4$.
+            </label>
+            </div>
+            </div>
+            <br>
+        </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+* {
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif
+    /*margin-left: 25px;*/
+    /*margin-right: 25px;*/
+}
+body {
+    /* background-color: rgb(227, 241, 245); opacity:0.6; */
+    background-image: url("background/2.png"); 
+    background-attachment: fixed;
+    background-size: 1500px 1500px;
+    background-repeat: repeat;
+    background-clip: border-box;
+    margin: 75px 100px;
+}
+h1{
+    background-color: rgba(175, 215, 238, 0.884); opacity:0.8; 
+    color: #000000;
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 50px;
+    margin-left: 0px;
+    margin-right: 0px;
+    border-radius: 5px;
+    padding: 50px 300px;
+}
+h2  {
+    border-radius: 5px;
+    background-color: rgb(227, 241, 245); opacity:0.8; 
+    padding: 15px 50px;
+    color: #000080;
+}
+h3 {
+    font-size: 18px;
+    padding: 0px 60px;
+    font-weight:bold;
+}
+h4 {
+    font-size: 14px;
+    text-align: center;
+}
+ul {
+    list-style-type:disc;
+    padding: 0px 100px;
+    color: #2B3856;
+}
+p   {
+    color: #2B3856;
+    padding:5px 75px;
+    font-size: 18px;
+    line-height:1.25;
+    /* border-left: 15px solid #254117; */
+    border-radius: 5px;
+}
+div {
+    margin:0px;
+}
+input {
+    margin-left: 10px;
+    margin-right: 10px
+}
+/* embed {
+    margin: 0px;
+} */
+.question {
+    margin: 0px;
+    padding:0px 80px;
+}
+.answer {
+    line-height:1.8em;
+}
